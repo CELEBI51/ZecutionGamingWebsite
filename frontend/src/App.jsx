@@ -101,12 +101,25 @@ function App() {
       update()
     }
 
+    if (video.readyState >= 2) {
+      handleReady()
+    }
+
+    const fallbackTimer = window.setTimeout(() => {
+      setIsReady(true)
+    }, 2200)
+
     video.addEventListener('loadeddata', handleReady)
+    video.addEventListener('canplay', handleReady)
+    video.addEventListener('error', () => setIsReady(true))
     window.addEventListener('scroll', scheduleUpdate, { passive: true })
     window.addEventListener('resize', scheduleUpdate)
     return () => {
       window.cancelAnimationFrame(animationFrame)
+      window.clearTimeout(fallbackTimer)
       video.removeEventListener('loadeddata', handleReady)
+      video.removeEventListener('canplay', handleReady)
+      video.removeEventListener('error', () => setIsReady(true))
       window.removeEventListener('scroll', scheduleUpdate)
       window.removeEventListener('resize', scheduleUpdate)
     }
